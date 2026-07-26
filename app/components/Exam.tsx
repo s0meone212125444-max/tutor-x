@@ -115,7 +115,11 @@ export default function Exam({
       : `Leveling up on ${bossTopic} with TutorX — my AI tutor teaches from my own notes. Join me:`;
 
     async function share() {
-      const url = typeof window !== "undefined" ? window.location.origin : "";
+      // Share the /share landing URL, not the bare origin — it carries OG tags
+      // that unfurl into THIS win-card (image + caption + tap-through) in
+      // WhatsApp/Telegram/X. The bare origin would just show the generic app card.
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const url = `${origin}/share?${cardParams}`;
       const full = `${shareText} ${url}`;
       try {
         // Native share sheet on mobile (WhatsApp/Telegram show up here).
