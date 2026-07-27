@@ -146,17 +146,26 @@ function TutorApp() {
   }, [loadCourses]);
 
   async function createCourse() {
-    if (!newCourse.trim() || !user) return;
-    const { data } = await sb
+    if (!newCourse.trim()) { setUploadMsg("Type a course name first."); return; }
+    if (!user) { setUploadMsg("⚠️ You're not signed in — sign in first."); return; }
+    setUploadMsg("Creating course…");
+    const { data, error } = await sb
       .from("courses")
       .insert({ name: newCourse.trim(), goal: newCourseGoal.trim() || null, user_id: user.id })
       .select("id, name, goal, target, teaching_prefs")
       .single();
+    if (error) {
+      // Surface the real reason instead of failing silently — this is what made
+      // the Add button feel dead when the DB insert was rejected.
+      setUploadMsg(`⚠️ Couldn't create course: ${error.message}`);
+      return;
+    }
     if (data) {
       setCourses((c) => [...c, data]);
       setCourseId(data.id);
       setNewCourse("");
       setNewCourseGoal("");
+      setUploadMsg("✅ Course created — now tap 📄 Material to upload your notes.");
     }
   }
 
