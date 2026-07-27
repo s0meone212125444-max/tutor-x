@@ -1,0 +1,4 @@
+# Never commit credentials, the real student list, or the send log.
+.env
+students.csv
+sent-log.json
