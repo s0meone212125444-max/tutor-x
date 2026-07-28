@@ -9,10 +9,13 @@
 // Free tier: ~1500 req/day. Key from https://aistudio.google.com/app/apikey ->
 // set GEMINI_API_KEY in the environment (Vercel + local .env.local).
 
-const MODEL = "text-embedding-004";
+// Verified against the live API: `text-embedding-004` is retired (404s), the
+// current model is `gemini-embedding-001`. It defaults to 3072 dims but honours
+// outputDimensionality, so we ask for 768 to match the `vector(768)` DB column.
+const MODEL = "gemini-embedding-001";
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
-/** Embedding dimensionality this model returns — MUST match the DB `vector(N)` column. */
+/** Embedding dimensionality we request — MUST match the DB `vector(N)` column. */
 export const EMBED_DIM = 768;
 
 function key(): string {
@@ -34,6 +37,7 @@ export async function embed(text: string): Promise<number[]> {
     body: JSON.stringify({
       model: `models/${MODEL}`,
       content: { parts: [{ text }] },
+      outputDimensionality: EMBED_DIM,
     }),
   });
   if (!res.ok) {
@@ -61,6 +65,7 @@ export async function embedMany(texts: string[]): Promise<number[][]> {
         requests: slice.map((text) => ({
           model: `models/${MODEL}`,
           content: { parts: [{ text }] },
+          outputDimensionality: EMBED_DIM,
         })),
       }),
     });
