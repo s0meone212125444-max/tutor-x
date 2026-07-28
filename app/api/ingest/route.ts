@@ -2,7 +2,7 @@
 // Accepts multipart form: file (PDF) OR text, plus courseId, userId, title, kind.
 import { extractText, getDocumentProxy } from "unpdf";
 import { chunkText } from "@/app/lib/chunk";
-import { embedMany } from "@/app/lib/embed";
+import { embedMany, keyFingerprint } from "@/app/lib/embed";
 import { supabaseAdmin } from "@/app/lib/supabase";
 
 export const runtime = "nodejs";
@@ -78,7 +78,12 @@ export async function POST(req: Request) {
   } catch (e: unknown) {
     const detail = e instanceof Error ? e.message : "unknown error";
     // e.g. "Failed at embed: GEMINI_API_KEY is not set" — surfaced to the UI.
-    return json({ error: `Failed at ${stage}: ${detail}` }, 500);
+    // On auth failures also report a non-secret fingerprint of the configured key,
+    // since a 401 here is usually a bad PASTE (quotes/whitespace) or a stale deploy
+    // that predates the env var, not an actually-invalid key.
+    const authIssue = /401|UNAUTHENTICATED|API key|credential/i.test(detail);
+    const suffix = authIssue ? ` [${keyFingerprint()}]` : "";
+    return json({ error: `Failed at ${stage}: ${detail}${suffix}` }, 500);
   }
 }
 

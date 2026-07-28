@@ -19,14 +19,28 @@ const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 export const EMBED_DIM = 768;
 
 function key(): string {
-  const k = process.env.GEMINI_API_KEY;
-  if (!k) {
+  const raw = process.env.GEMINI_API_KEY;
+  if (!raw) {
     throw new Error(
       "GEMINI_API_KEY is not set. Add it in Vercel env (and local .env.local). " +
         "Get a free key at https://aistudio.google.com/app/apikey"
     );
   }
+  // Env values pasted through dashboards often arrive with wrapping quotes, stray
+  // whitespace or a trailing newline — Google then rejects them as invalid creds
+  // (401 UNAUTHENTICATED), which looks like a "bad key" but is really a bad paste.
+  const k = raw.trim().replace(/^["']|["']$/g, "").trim();
+  if (!k) throw new Error("GEMINI_API_KEY is set but empty after trimming quotes/whitespace.");
   return k;
+}
+
+/** Non-secret fingerprint of the configured key, for debugging env problems. */
+export function keyFingerprint(): string {
+  const raw = process.env.GEMINI_API_KEY;
+  if (!raw) return "GEMINI_API_KEY: MISSING";
+  const k = raw.trim().replace(/^["']|["']$/g, "").trim();
+  const dirty = raw !== k ? " (had quotes/whitespace — cleaned)" : "";
+  return `GEMINI_API_KEY: len=${k.length} starts=${k.slice(0, 5)} ends=${k.slice(-4)}${dirty}`;
 }
 
 // Embed a single string -> number[768]
