@@ -566,19 +566,27 @@ function TutorApp() {
                   />
                   <button className="teach-btn" onClick={createCourse}>Add</button>
                 </div>
-                {courseId && (
-                  <div className="upload-row">
-                    <label className="upload-btn">
-                      📄 Material (PDF)
-                      <input type="file" accept="application/pdf" hidden onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "material")} />
-                    </label>
-                    <label className="upload-btn">
-                      📝 Past questions (PDF)
-                      <input type="file" accept="application/pdf" hidden onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "past_questions")} />
-                    </label>
-                    {uploadMsg && <span className="upload-msg">{uploadMsg}</span>}
+                {/* Upload is ALWAYS visible — hiding it until a course existed made
+                    the whole feature look broken ("the button does nothing"). When
+                    there's no course yet we show it disabled with the reason, so the
+                    next action is obvious instead of invisible. */}
+                <div className="upload-row">
+                  <label className={`upload-btn ${courseId ? "" : "disabled"}`} title={courseId ? "Upload your notes (PDF)" : "Create or pick a course first"}>
+                    📄 Material (PDF)
+                    <input type="file" accept="application/pdf" hidden disabled={!courseId} onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "material")} />
+                  </label>
+                  <label className={`upload-btn ${courseId ? "" : "disabled"}`} title={courseId ? "Upload past questions (PDF)" : "Create or pick a course first"}>
+                    📝 Past questions (PDF)
+                    <input type="file" accept="application/pdf" hidden disabled={!courseId} onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "past_questions")} />
+                  </label>
+                </div>
+                {!courseId && (
+                  <div className="upload-hint">
+                    ☝️ Pick a course above, or type a name and tap <b>Add</b> — then you can upload.
                   </div>
                 )}
+                {/* Outside the courseId gate so errors/success are ALWAYS visible. */}
+                {uploadMsg && <div className="upload-msg">{uploadMsg}</div>}
               </div>
             )}
           </div>

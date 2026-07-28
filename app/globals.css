@@ -235,9 +235,26 @@ body {
 .upload-btn:hover {
   border-color: var(--accent-2);
 }
+/* Shown instead of hiding upload entirely when no course is picked yet. */
+.upload-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.upload-btn.disabled:hover {
+  border-color: #3a4a5a;
+}
+.upload-hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
 .upload-msg {
   font-size: 13px;
   color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 /* ===== Exam bar ===== */
