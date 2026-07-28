@@ -6,7 +6,8 @@ import { embed } from "@/app/lib/embed";
 import { supabaseAdmin } from "@/app/lib/supabase";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Deep lessons are a big generation — give it room before the platform times out.
+export const maxDuration = 300;
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -20,10 +21,13 @@ export async function POST(req: Request) {
     try {
       const qEmb = await embed(topic);
       const db = supabaseAdmin();
+      // Pull a WIDE slice of the student's material. A deep, note-grounded lecture
+      // needs far more than a few snippets — 8 chunks was why lessons drifted into
+      // generic textbook content even when a course was attached.
       const { data } = await db.rpc("match_chunks", {
         query_embedding: qEmb,
         match_course_id: courseId,
-        match_count: 8,
+        match_count: 20,
       });
       if (data?.length) context = data.map((d: { content: string }) => d.content).join("\n\n---\n\n");
     } catch {
@@ -35,7 +39,11 @@ export async function POST(req: Request) {
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.6,
-      max_tokens: 4000,
+      // Groq free tier caps at 12k tokens/minute for the whole request (prompt +
+      // completion), so we can't just ask for more — 8000 leaves room for the
+      // system prompt + up to 20 retrieved chunks while still allowing a lesson
+      // ~2x deeper than the old 4000-token ceiling.
+      max_tokens: 8000,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: withPersonality(LECTURE_SYSTEM, personalityId) },

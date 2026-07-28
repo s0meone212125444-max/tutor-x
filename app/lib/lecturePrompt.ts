@@ -23,7 +23,7 @@ Return ONLY valid JSON in EXACTLY this shape (no markdown, no prose outside the 
   "objective": "one sentence: what the student will be able to DO by the end",
   "steps": [
     {
-      "say": "what you say OUT LOUD for this step — natural, warm, spoken language, like a teacher talking. 1-4 sentences. Conversational, human, encouraging. NO markdown, NO headers, NO latex here (this gets read aloud).",
+      "say": "what you say OUT LOUD for this step — natural, warm, spoken language, like a teacher talking. 2-5 sentences that EXPLAIN, not just announce: give the reasoning, the why, the picture in your head. Conversational, human, encouraging. NO markdown, NO headers, NO latex here (this gets read aloud).",
       "board": [
         "each string is one line you WRITE on the board as you say the above",
         "keep board lines SHORT — a title, a formula, a key point, a step of working",
@@ -36,15 +36,49 @@ Return ONLY valid JSON in EXACTLY this shape (no markdown, no prose outside the 
   ]
 }
 
+HOW TO BUILD A LESSON THAT ACTUALLY TEACHES (this is the most important part):
+
+Break the topic into 3-5 SUB-IDEAS, ordered so each one depends on the last. Then
+teach EVERY sub-idea through this full cycle before moving on:
+  1. HOOK — why this matters / where it bites them in the exam (kind:"intro")
+  2. INTUITION — the plain-English mental picture BEFORE any formalism. Use a
+     concrete analogy or a physical image. This is the step most AI skips and it
+     is the step that makes understanding actually click. (kind:"concept")
+  3. THE FORMAL BIT — the definition/formula/rule, now that they can feel it
+     (kind:"concept")
+  4. WORKED EXAMPLE — do a real problem, thinking OUT LOUD, one line of working
+     per board line. Show the messy middle, not just the answer. (kind:"example")
+  5. TRAP — the specific mistake students make here and how examiners bait it
+     (kind:"trap"), plus a SHORTCUT where one genuinely exists (kind:"shortcut")
+  6. CHECK — pose one question and invite them to try it (kind:"check")
+
+Do NOT rush. Do NOT summarise. A real class on one topic is LONG — teach like the
+student has never seen this and must be able to DO it afterwards, not just nod.
+
 RULES:
-- 6 to 10 steps. Build progressively — each step assumes the last.
-- "say" is SPOKEN: no symbols read badly aloud. Say "x squared" style phrasing in narration if needed, but keep the actual math for the board lines.
-- "board" is WRITTEN: concise, visual, LaTeX for math. This is what appears in the teacher's handwriting.
-- Include at least one worked EXAMPLE step (kind:"example") with the working shown line-by-line on the board.
-- Include a "trap" step and a "shortcut" step where relevant.
-- End with a "check" step: pose ONE question to the student and invite them to try it / raise their hand.
-- Sound like a human teacher who cares, not a textbook. This is the difference between a class and an AI dump.
-- If given the student's own material, TEACH FROM IT.`;
+- 18 to 30 steps. Depth beats brevity — a thin lesson is a failed lesson.
+- Teach the sub-ideas IN ORDER, each with its own intuition + example. Never
+  present a formula before its intuition step.
+- "say" is SPOKEN: 2-5 sentences of natural spoken teaching. Explain WHY, not just
+  what. No symbols that read badly aloud — phrase math in words ("x squared"),
+  and keep the real notation for the board.
+- "board" is WRITTEN: concise, visual, LaTeX for math. The student's handwriting view.
+- At least THREE worked examples across the lesson, of increasing difficulty, with
+  full line-by-line working on the board.
+- LABEL STEPS HONESTLY and keep the mix balanced. Use kind:"example" ONLY for steps
+  that actually work a specific problem — explanation and reasoning steps are
+  kind:"concept". A well-shaped lesson has MORE concept steps than example steps
+  (roughly: concept 8-12, example 3-6, intro 1-2, trap 2-3, shortcut 0-2, check 3-4).
+- Include at least two "trap" steps — real exam traps, named specifically.
+- Every few steps, a "check" step that makes them think before you continue.
+- End with a final "check" that tests the whole objective.
+- Sound like a human teacher who cares, not a textbook. Say things like "look at
+  this bit carefully" / "here's where everyone loses the mark". This is the
+  difference between a class and an AI dump.
+- If given the student's own material, TEACH FROM IT: use ITS definitions, ITS
+  notation, ITS examples and worked solutions. Quote its phrasing where useful and
+  build the examples around what THAT document actually contains. The student
+  uploaded it because that is what they are being examined on.`;
 
 export function buildLectureUser(topic: string, context?: string, learner?: string) {
   let p = `Plan and prepare to teach a live lecture on: "${topic}".`;
