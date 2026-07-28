@@ -13,7 +13,29 @@
 
 ---
 
-## PHASE 0 — FOUNDATION: make it actually use your notes ⚠️ DO FIRST
+## ✅ PHASE 0 — COMPLETE (2026-07-28)
+Uploads work; the tutor can finally see your notes.
+- Embeddings moved off the local huggingface model → hosted **Gemini
+  `gemini-embedding-001`**, requesting `outputDimensionality: 768`.
+- Ran `supabase-migration-embeddings-768.sql` (chunks.embedding + match_chunks → vector(768)).
+- Removed `@huggingface/transformers` + its next.config externals.
+- Ingest errors are stage-labelled (`Failed at embed: ...`) + key fingerprint on auth errors.
+- Fixed the upload flow trap: buttons were hidden until a course existed.
+
+## ✅ PHASE 1 — COMPLETE (2026-07-28)
+Lessons are deep now. Measured live: **15–24 steps, 685–1024 spoken words
+(~5–8 min of teaching), 38 board lines** — was 6–10 steps / ~30 sentences.
+- Prompt teaches 3–5 sub-ideas, each: hook → **intuition before formalism** →
+  formal rule → worked example (thinking out loud) → exam trap/shortcut → check.
+- RAG retrieval 8 → 20 chunks; `max_tokens` 4000 → 8000; `maxDuration` 60 → 300.
+- ⚠️ Not yet judged by the founder on the live site — first job next session.
+
+## 👉 PHASE 2 — NEXT: kill the robot voice
+See the Phase 2 section below.
+
+---
+
+## PHASE 0 (original notes) — FOUNDATION: make it actually use your notes
 **The problem:** every important feature (teach, quiz, answer) calls `embed()`,
 which runs a local AI model (`@huggingface/transformers`). This likely FAILS on
 Vercel's free serverless (memory/size/cold-start). When it fails, uploads don't
@@ -155,6 +177,17 @@ to come back.
 - **4 is the moat** — tighten it once the core feels good.
 - **5–7 are expansion** — each is a new format on top of the same engine; do them
   once 0–4 make people say "this actually taught me."
+
+## Hard constraints found by hitting them (don't relearn these)
+- **Groq free tier = 12,000 tokens/minute** for prompt+completion combined.
+  `max_tokens: 16000` is rejected with HTTP 413. 8000 is the working ceiling
+  alongside 20 RAG chunks. Deeper lessons require Groq Dev Tier.
+- **Gemini:** `text-embedding-004` is retired (404). Use `gemini-embedding-001`
+  and pass `outputDimensionality: 768` (it defaults to 3072). Sync
+  `batchEmbedContents` works even though it isn't advertised for the model.
+- **Env vars on Vercel only load into a NEW build** — always redeploy after adding
+  `GEMINI_API_KEY`. Values pasted via the dashboard can carry quotes/whitespace;
+  `embed.ts` now trims them and reports a non-secret fingerprint on 401s.
 
 ## Reality guardrails (from memory)
 - Exams until 2026-06-29 → lightweight sessions; this roadmap is the post-exam plan too.
